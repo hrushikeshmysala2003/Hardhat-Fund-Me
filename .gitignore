@@ -9,3 +9,7 @@ typechain-types
 cache
 artifacts
 impNotes.docs
+
+gas-report.txt
+coverage.json
+coverage

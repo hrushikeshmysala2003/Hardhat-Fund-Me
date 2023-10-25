@@ -6,10 +6,14 @@
     "ethers": "^6.8.0",
     "hardhat": "^2.18.2",
     "hardhat-deploy": "^0.11.43",
-    "hardhat-deploy-ethers": "^0.4.1"
+    "hardhat-deploy-ethers": "^0.4.1",
+    "@nomicfoundation/hardhat-verify": "^1.1.1",
+    "hardhat-gas-reporter": "^1.0.9"
   },
   "dependencies": {
     "@chainlink/contracts": "^0.8.0",
-    "solhint": "^3.6.2"
+    "solhint": "^3.6.2",
+    "dotenv": "^16.3.1",
+    "solidity-coverage": "^0.8.5"
   }
 }
