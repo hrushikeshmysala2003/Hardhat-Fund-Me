@@ -62,7 +62,7 @@ describe("FundMe", function () {
       // Act
       const transactionResponse = await fundme.withdraw();
       const transactionReceipt = await transactionResponse.wait();
-      console.log(transactionReceipt);
+      //   console.log(transactionReceipt);
       const { gasUsed, gasPrice } = transactionReceipt;
       const gasCost = gasUsed * gasPrice;
       const endingFundMeBalance = await ethers.provider.getBalance(
@@ -76,5 +76,47 @@ describe("FundMe", function () {
         endingdeployerBalance + gasCost
       );
     });
+  });
+
+  it("allows us to withdraw with multiple funders", async function () {
+    // Arrange
+    const accounts = await ethers.getSigners();
+    for (let i = 1; i < 6; i++) {
+      const fundMeConnectContract = await fundme.connect(accounts[i]);
+      await fundMeConnectContract.fund({ value: sendValue });
+    }
+    const startingFundMeBalance = await ethers.provider.getBalance(
+      fundme.target
+    );
+    const startingDeployerBalance = await ethers.provider.getBalance(deployer);
+    // Act
+    const transactionResponse = await fundme.withdraw();
+    const transactionReceipt = await transactionResponse.wait();
+    const { gasUsed, gasPrice } = transactionReceipt;
+    const gasCost = gasUsed * gasPrice;
+
+    // Assert
+    const endingFundMeBalance = await ethers.provider.getBalance(fundme.target);
+    const endingdeployerBalance = await ethers.provider.getBalance(deployer);
+    // Assert
+    assert.equal(endingFundMeBalance, 0);
+    assert.equal(
+      startingDeployerBalance + startingFundMeBalance,
+      endingdeployerBalance + gasCost
+    );
+
+    // Make sure that the funders are reset properly
+    await expect(fundme.funders(0)).to.be.reverted;
+
+    for (let i = 1; i < 6; i++) {
+      assert.equal(await fundme.addressToAmountFunded(accounts[i].address), 0);
+    }
+  });
+
+  it("Only allows the owner to withdraw", async function () {
+    const accounts = await ethers.getSigners();
+    const attacker = accounts[1];
+    const attackerConnectedContract = await fundme.connect(attacker);
+    await expect(attackerConnectedContract.withdraw()).to.be.reverted;
   });
 });
