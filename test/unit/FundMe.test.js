@@ -45,4 +45,36 @@ describe("FundMe", function () {
       assert.equal(funder, deployer);
     });
   });
+
+  describe("withdraw", async function () {
+    beforeEach(async function () {
+      await fundme.fund({ value: sendValue });
+    });
+
+    it("withdraw eth from single funder", async function () {
+      // arrange
+      const startingFundMeBalance = await ethers.provider.getBalance(
+        fundme.target
+      );
+      const startingDeployerBalance = await ethers.provider.getBalance(
+        deployer
+      );
+      // Act
+      const transactionResponse = await fundme.withdraw();
+      const transactionReceipt = await transactionResponse.wait();
+      console.log(transactionReceipt);
+      const { gasUsed, gasPrice } = transactionReceipt;
+      const gasCost = gasUsed * gasPrice;
+      const endingFundMeBalance = await ethers.provider.getBalance(
+        fundme.target
+      );
+      const endingdeployerBalance = await ethers.provider.getBalance(deployer);
+      // Assert
+      assert.equal(endingFundMeBalance, 0);
+      assert.equal(
+        startingDeployerBalance + startingFundMeBalance,
+        endingdeployerBalance + gasCost
+      );
+    });
+  });
 });
