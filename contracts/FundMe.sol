@@ -75,6 +75,9 @@ contract FundMe {
     receive() external payable {
         fund();
     }
+    function getPriceFeed() public view returns (AggregatorV3Interface) {
+        return priceFeed;
+    }
 
 }
 
